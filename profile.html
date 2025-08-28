@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #fefbf6;
+            color: #171717;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #000;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .auth-status {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .auth-authenticated {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .auth-guest {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .level-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .level-button:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .profile-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #ea580c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+            border: 4px solid #fff7ed;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-email {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .member-since {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .balance-display {
+            background: #fff7ed;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #ea580c;
+        }
+
+        .balance-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #ea580c;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Skeleton Loader */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-circle {
+            border-radius: 50%;
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text.large {
+            height: 1.5rem;
+        }
+
+        .skeleton-text.small {
+            height: 0.8rem;
+            width: 60%;
+        }
+
+        .skeleton-balance {
+            height: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-stat {
+            height: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .auth-status, .level-button {
+                position: relative;
+                margin: 0.5rem;
+            }
+
+            .profile-card {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="level-button" id="levelDisplay">Loading...</div>
+            <div class="auth-status" id="authStatus">Loading...</div>
+            <h1>Profile</h1>
+            <p>Your account information</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-image skeleton skeleton-circle" id="profileImage"></div>
+                <h2 class="profile-name">
+                    <div class="skeleton skeleton-text large" id="profileName">
+                        
+                    </div>
+                </h2>
+                <p class="profile-email">
+                    <div class="skeleton skeleton-text" id="profileEmail"></div>
+                </p>
+                <p class="member-since">
+                    <div class="skeleton skeleton-text small" id="memberSince"></div>
+                </p>
+            </div>
+
+            <div class="balance-display">
+                <div class="balance-label">Current Balance</div>
+                <div class="balance-amount">
+                    <div class="skeleton skeleton-balance" id="balanceAmount"></div>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value">
+                        <div class="skeleton skeleton-stat" id="userLevel"></div>
+                    </div>
+                    <div class="stat-label">Level</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">
+                        <div class="skeleton skeleton-stat" id="memberDays"></div>
+                    </div>
+                    <div class="stat-label">Days</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">
+                        <div class="skeleton skeleton-stat" id="transactionCount"></div>
+                    </div>
+                    <div class="stat-label">Transactions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+        import firebaseConfig  from './firebaseConfig.js';
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        const elements = {
+            levelDisplay: document.getElementById('levelDisplay'),
+            authStatus: document.getElementById('authStatus'),
+            alertContainer: document.getElementById('alertContainer'),
+            profileImage: document.getElementById('profileImage'),
+            profileName: document.getElementById('profileName'),
+            profileEmail: document.getElementById('profileEmail'),
+            memberSince: document.getElementById('memberSince'),
+            balanceAmount: document.getElementById('balanceAmount'),
+            userLevel: document.getElementById('userLevel'),
+            memberDays: document.getElementById('memberDays'),
+            transactionCount: document.getElementById('transactionCount')
+        };
+
+        function showAlert(message, type = 'error') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            elements.alertContainer.innerHTML = '';
+            elements.alertContainer.appendChild(alert);
+            setTimeout(() => alert.remove(), type === 'success' ? 3000 : 5000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount || 0);
+        }
+
+        function calculateDays(timestamp) {
+            if (!timestamp) return 0;
+            const days = Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
+            return days < 0 ? 0 : days;
+        }
+
+        function getInitials(firstName, lastName, username, email) {
+            if (firstName && lastName) return `${firstName[0]}${lastName[0]}`.toUpperCase();
+            if (firstName) return firstName[0].toUpperCase();
+            if (username) return username[0].toUpperCase();
+            if (email) return email[0].toUpperCase();
+            return '👤';
+        }
+
+        function removeSkeleton(element) {
+            element.classList.remove('skeleton', 'skeleton-circle', 'skeleton-text', 'skeleton-balance', 'skeleton-stat', 'large', 'small');
+        }
+
+        function loadUserProfile(uid, userEmail) {
+            const userRef = ref(database, `users/${uid}`);
+            onValue(userRef, (snapshot) => {
+                const userData = snapshot.val();
+                
+                if (!userData) {
+                    showAlert('No user data found');
+                    return;
+                }
+
+                const profile = userData.profile || {};
+                
+                // Update profile name
+                const displayName = profile.firstName 
+                    ? `${profile.firstName} ${profile.lastName || ''}`.trim()
+                    : profile.username || userEmail?.split('@')[0] || 'User';
+                
+                removeSkeleton(elements.profileName);
+                elements.profileName.textContent = displayName;
+
+                // Update email
+                removeSkeleton(elements.profileEmail);
+                elements.profileEmail.textContent = userEmail;
+
+                // Update balance
+                const balance = userData.wallet?.usdBalance || userData.balance || 0;
+                removeSkeleton(elements.balanceAmount);
+                elements.balanceAmount.textContent = formatCurrency(balance);
+
+                // Update profile image
+                removeSkeleton(elements.profileImage);
+                elements.profileImage.textContent = getInitials(
+                    profile.firstName, 
+                    profile.lastName, 
+                    profile.username, 
+                    userEmail
+                );
+
+                // Update level
+                const level = userData.level || 1;
+                elements.levelDisplay.textContent = `Level ${level}`;
+                removeSkeleton(elements.userLevel);
+                elements.userLevel.textContent = level;
+
+                // Update member days
+                const days = calculateDays(userData.createdAt);
+                removeSkeleton(elements.memberDays);
+                elements.memberDays.textContent = days;
+
+                // Update member since
+                if (userData.createdAt) {
+                    const date = new Date(userData.createdAt);
+                    removeSkeleton(elements.memberSince);
+                    elements.memberSince.textContent = `Member since: ${date.toLocaleDateString()}`;
+                } else {
+                    removeSkeleton(elements.memberSince);
+                    elements.memberSince.textContent = 'Member since: Recently joined';
+                }
+
+                // Update transaction count
+                const transactionCount = userData.transactions ? Object.keys(userData.transactions).length : 0;
+                removeSkeleton(elements.transactionCount);
+                elements.transactionCount.textContent = transactionCount;
+            });
+        }
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                elements.authStatus.className = 'auth-status auth-authenticated';
+                elements.authStatus.textContent = 'Authenticated';
+                loadUserProfile(user.uid, user.email);
+            } else {
+                elements.authStatus.className = 'auth-status auth-guest';
+                elements.authStatus.textContent = 'Not Authenticated';
+                elements.levelDisplay.textContent = 'Level 0';
+                showAlert('Please log in to view your profile');
+            }
+        });
+        
+    </script>
+</body>
+</html>

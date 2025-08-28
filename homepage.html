@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --geist-background: #ffffff;
+            --geist-foreground: #000000;
+            --geist-gray: #666666;
+            --geist-border: #e5e5e5;
+            --geist-hover: #f5f5f5;
+            --primary-color: #ff6b35;
+            --primary-secondary: #e55a2b;
+            --primary-light: #ff8c5a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--geist-background);
+            color: var(--geist-foreground);
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--geist-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .slide-button {
+            background: none;
+            border: none;
+            color: var(--geist-foreground);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide-button:hover {
+            background: var(--geist-hover);
+        }
+
+        .slide-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--geist-foreground);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--geist-gray);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-btn:hover {
+            background: var(--geist-hover);
+            color: var(--geist-foreground);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 8px;
+            height: 8px;
+            font-size: 10px;
+        }
+
+        .profile-btn {
+            background: var(--geist-border);
+            border: none;
+            color: var(--geist-foreground);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .profile-btn:hover {
+            background: var(--geist-hover);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: -50vw;
+            width: 50vw;
+            height: calc(100vh - 60px);
+            background: var(--geist-background);
+            border-right: 1px solid var(--geist-border);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s ease;
+            z-index: 999;
+            padding: 24px 0;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            padding: 0 24px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 0;
+            color: var(--geist-gray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            color: var(--geist-foreground);
+        }
+
+        .sidebar-nav a.active {
+            color: var(--geist-foreground);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--geist-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            padding: 8px 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--geist-gray);
+            min-width: 60px;
+        }
+
+        .nav-item:hover {
+            background: var(--geist-hover);
+            color: var(--geist-foreground);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 90, 0.1));
+            color: var(--primary-color);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 60px;
+            margin-bottom: 70px;
+            padding: 0;
+            transition: margin-left 0.3s ease;
+            min-height: calc(100vh - 130px);
+        }
+
+        .main-content.sidebar-open {
+            margin-left: 50vw;
+        }
+
+        /* Content Frame */
+        .content-frame {
+            width: 100%;
+            height: calc(100vh - 130px);
+            border: none;
+            display: none;
+        }
+
+        .content-frame.active {
+            display: block;
+        }
+
+        /* Loading indicator */
+        .loading-indicator {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 130px);
+            color: var(--geist-gray);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--geist-border);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+   
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content.sidebar-open {
+                margin-left: 0;
+            }
+            
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <button class="slide-button" id="sidebarToggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="logo">MVC mining</div>
+        </div>
+        <div class="header-right">
+            <button class="notification-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="notification-badge"></span>
+            </button>
+            <!-- <button class="profile-btn">JD</button> -->
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="#" data-page="dashboard" data-src="./Dashboard.html" class="active">dashboard</a></li>
+            <li><a href="#" data-page="portfolio" data-src="/portfolio.html">Portfolio</a></li>
+            <li><a href="#" data-page="trading" data-src="/trading.html">Trading</a></li>
+            <li><a href="#" data-page="markets" data-src="/markets.html">Markets</a></li>
+            <li><a href="#" data-page="history" data-src="/history.html">History</a></li>
+            <li><a href="#" data-page="settings" data-src="/settings.html">Settings</a></li>
+            <li><a href="#" data-page="support" data-src="/support.html">Support</a></li>
+        </ul>
+    </nav>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <!-- Loading indicator -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <span>Loading...</span>
+        </div>
+
+        <!-- Iframe containers for external pages -->
+        <iframe class="content-frame active" id="dashboard-frame" data-page="dashboard"></iframe>
+        <iframe class="content-frame" id="portfolio-frame" data-page="portfolio"></iframe>
+        <iframe class="content-frame" id="trading-frame" data-page="trading"></iframe>
+        <iframe class="content-frame" id="markets-frame" data-page="markets"></iframe>
+        <iframe class="content-frame" id="history-frame" data-page="history"></iframe>
+        <iframe class="content-frame" id="settings-frame" data-page="settings"></iframe>
+        <iframe class="content-frame" id="support-frame" data-page="support"></iframe>
+        <iframe class="content-frame" id="leaderboard-frame" data-page="/leaderboard.html"></iframe>
+        <iframe class="content-frame" id="profile-frame" data-page="/profile.html"></iframe>
+        <iframe class="content-frame" id="upgrade-frame" data-page="/upgrade.html"></iframe>
+        <iframe class="content-frame" id="withdraw-frame" data-page="./withdraw.html"></iframe>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-page="dashboard" data-src="./Dashboard.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9,22 9,12 15,12 15,22"></polyline>
+            </svg>
+            <span>Home</span>
+        </a>
+        
+        <!-- <a href="#" class="nav-item" data-page="leaderboard" data-src="./mining.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 16v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4"></path>
+                <rect x="6" y="12" width="12" height="8" rx="2"></rect>
+                <path d="M8 12V8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4"></path>
+            </svg>
+            <span>Leaderboard</span>
+        </a> -->
+        
+        <a href="#" class="nav-item" data-page="profile" data-src="./profile.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span>Profile</span>
+        </a>
+        
+        <a href="#" class="nav-item" data-page="upgrade" data-src="/upgrade.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10"></polygon>
+            </svg>
+            <span>Upgrade</span>
+        </a>
+        
+        <a href="#" class="nav-item" data-page="withdraw" data-src="./withdraw.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7,10 12,15 17,10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Withdraw</span>
+        </a>
+    </nav>
+
+    <script>
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const overlay = document.getElementById('overlay');
+
+        // Toggle sidebar
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+            mainContent.classList.toggle('sidebar-open');
+            overlay.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking overlay
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('open');
+            mainContent.classList.remove('sidebar-open');
+            overlay.classList.remove('active');
+        });
+
+        // Handle page navigation with iframes
+        function showPage(pageId) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            // Hide all iframes
+            document.querySelectorAll('.content-frame').forEach(frame => {
+                frame.classList.remove('active');
+            });
+            
+            // Find the iframe for this page
+            const targetFrame = document.getElementById(pageId + '-frame');
+            if (targetFrame) {
+                // Show loading indicator
+                loadingIndicator.style.display = 'flex';
+                
+                // Get the source URL from the navigation item
+                const navItem = document.querySelector(`[data-page="${pageId}"]`);
+                const srcUrl = navItem ? navItem.getAttribute('data-src') : null;
+                
+                if (srcUrl && !targetFrame.src) {
+                    // Load the page for the first time
+                    targetFrame.src = srcUrl;
+                    
+                    // Handle iframe load
+                    targetFrame.onload = function() {
+                        loadingIndicator.style.display = 'none';
+                        targetFrame.classList.add('active');
+                    };
+                    
+                    // Handle iframe error
+                    targetFrame.onerror = function() {
+                        loadingIndicator.style.display = 'none';
+                        targetFrame.classList.add('active');
+                        console.error(`Failed to load: ${srcUrl}`);
+                    };
+                } else if (targetFrame.src) {
+                    // Page already loaded, just show it
+                    loadingIndicator.style.display = 'none';
+                    targetFrame.classList.add('active');
+                } else {
+                    // No src available
+                    loadingIndicator.style.display = 'none';
+                    targetFrame.classList.add('active');
+                }
+            }
+            
+            // Update active states
+            document.querySelectorAll('.nav-item, .sidebar-nav a').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Set active state for both navigations
+            document.querySelectorAll(`[data-page="${pageId}"]`).forEach(item => {
+                item.classList.add('active');
+            });
+        }
+
+        // Bottom navigation handlers
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageId = this.getAttribute('data-page');
+                showPage(pageId);
+            });
+        });
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageId = this.getAttribute('data-page');
+                showPage(pageId);
+                
+                // Close sidebar on mobile
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                    mainContent.classList.remove('sidebar-open');
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize dashboard on load
+        window.addEventListener('load', function() {
+            showPage('dashboard');
+        });
+
+        // Notification and profile handlers
+        document.querySelector('.notification-btn').addEventListener('click', function() {
+            console.log('Notifications clicked');
+        });
+
+        document.querySelector('.profile-btn').addEventListener('click', function() {
+            console.log('Profile clicked');
+        });
+    </script>
+</body>
+</html>

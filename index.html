@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVC mining - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --geist-background: #ffffff;
+            --geist-foreground: #000000;
+            --geist-gray: #666666;
+            --geist-light-gray: #999999;
+            --geist-border: #e5e5e5;
+            --geist-hover: #f5f5f5;
+            --orange-primary: #ff6b35;
+            --orange-secondary: #e55a2b;
+            --orange-light: #ff8c5a;
+            --error-color: #ef4444;
+            --success-color: #22c55e;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--orange-primary) 0%, var(--orange-secondary) 100%);
+            color: var(--geist-foreground);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: var(--geist-background);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange-primary), var(--orange-light));
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--orange-primary);
+            margin-bottom: 8px;
+        }
+
+        .logo p {
+            font-size: 14px;
+            color: var(--geist-gray);
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: var(--geist-hover);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 32px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--geist-gray);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .auth-tab.active {
+            background: var(--geist-background);
+            color: var(--orange-primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--geist-foreground);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--geist-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--geist-background);
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--orange-primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--error-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px;
+            background: var(--orange-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .auth-button:hover {
+            background: var(--orange-secondary);
+            transform: translateY(-1px);
+        }
+
+        .auth-button:disabled {
+            background: var(--geist-light-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: var(--geist-gray);
+            font-size: 12px;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--geist-border);
+        }
+
+        .divider span {
+            background: var(--geist-background);
+            padding: 0 16px;
+        }
+
+        .guest-button {
+            width: 100%;
+            padding: 12px;
+            background: var(--geist-hover);
+            color: var(--geist-foreground);
+            border: 1px solid var(--geist-border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .guest-button:hover {
+            background: var(--geist-border);
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--geist-gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 32px 24px;
+                margin: 10px;
+            }
+        }
+
+        /* Form switching */
+        .login-form {
+            display: block;
+        }
+        
+        .signup-form {
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>CryptoDash</h1>
+            <p>Your crypto trading dashboard</p>
+        </div>
+
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="loginTab">Login</button>
+            <button class="auth-tab" id="signupTab">Sign Up</button>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            Account created successfully! You can now log in.
+        </div>
+
+        <!-- Login Form -->
+        <div class="login-form" id="loginForm">
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="loginEmail" 
+                        placeholder="Enter your email"
+                        required
+                    >
+                    <div class="error-message" id="loginEmailError">Please enter a valid email</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="loginPassword" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                    <div class="error-message" id="loginPasswordError">Password is required</div>
+                </div>
+
+                <button type="submit" class="auth-button" id="loginButton">
+                    <span class="button-text">Sign In</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="signup-form hidden" id="signupForm">
+            <form id="signupFormElement">
+                <div class="form-group">
+                    <label class="form-label" for="signupName">Full Name</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="signupName" 
+                        placeholder="Enter your full name"
+                        required
+                    >
+                    <div class="error-message" id="signupNameError">Name is required</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signupEmail">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="signupEmail" 
+                        placeholder="Enter your email"
+                        required
+                    >
+                    <div class="error-message" id="signupEmailError">Please enter a valid email</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signupPassword">Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="signupPassword" 
+                        placeholder="Create a password (min 6 characters)"
+                        required
+                        minlength="6"
+                    >
+                    <div class="error-message" id="signupPasswordError">Password must be at least 6 characters</div>
+                </div>
+
+                <button type="submit" class="auth-button" id="signupButton">
+                    <span class="button-text">Create Account</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="form-footer">
+            <p>Secure login powered by Firebase Authentication</p>
+        </div>
+    </div>
+
+    <!-- Firebase Setup -->
+    <script type="module">
+        // Firebase Setup and Authentication Script
+import firebaseConfig from './firebaseConfig.js';
+
+// Import Firebase SDK modules
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword,
+    onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { 
+    getDatabase, 
+    ref, 
+    set, 
+    get 
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// DOM Elements Cache
+const elements = {
+    loginTab: document.getElementById('loginTab'),
+    signupTab: document.getElementById('signupTab'),
+    loginForm: document.getElementById('loginForm'),
+    signupForm: document.getElementById('signupForm'),
+    loginFormElement: document.getElementById('loginFormElement'),
+    signupFormElement: document.getElementById('signupFormElement'),
+    loginButton: document.getElementById('loginButton'),
+    signupButton: document.getElementById('signupButton'),
+    successMessage: document.getElementById('successMessage'),
+    inputs: {
+        loginEmail: document.getElementById('loginEmail'),
+        loginPassword: document.getElementById('loginPassword'),
+        signupName: document.getElementById('signupName'),
+        signupEmail: document.getElementById('signupEmail'),
+        signupPassword: document.getElementById('signupPassword')
+    },
+    errors: {
+        loginEmail: document.getElementById('loginEmailError'),
+        loginPassword: document.getElementById('loginPasswordError'),
+        signupName: document.getElementById('signupNameError'),
+        signupEmail: document.getElementById('signupEmailError'),
+        signupPassword: document.getElementById('signupPasswordError')
+    }
+};
+
+// Application State
+const appState = {
+    currentTab: 'login',
+    isProcessing: false
+};
+
+// Utility Functions
+const utils = {
+    validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    },
+
+    showError(inputId, errorId, message) {
+        const input = elements.inputs[inputId];
+        const error = elements.errors[errorId];
+        
+        if (input && error) {
+            input.classList.add('error');
+            error.textContent = message;
+            error.classList.add('show');
+        }
+    },
+
+    clearError(inputId, errorId) {
+        const input = elements.inputs[inputId];
+        const error = elements.errors[errorId];
+        
+        if (input && error) {
+            input.classList.remove('error');
+            error.classList.remove('show');
+        }
+    },
+
+    clearAllErrors() {
+        Object.keys(elements.inputs).forEach(inputId => {
+            const errorId = inputId.replace(/([A-Z])/g, (match, letter) => 
+                letter === 'E' ? 'E' : letter
+            );
+            this.clearError(inputId, errorId);
+        });
+    },
+
+    showLoading(button, isLoading, loadingText = 'Processing...') {
+        if (!button) return;
+        
+        // Store original text if not already stored
+        if (!button.dataset.originalText) {
+            const buttonTextElement = button.querySelector('.button-text');
+            button.dataset.originalText = buttonTextElement ? 
+                buttonTextElement.textContent : 
+                button.textContent.trim();
+        }
+        
+        if (isLoading) {
+            button.disabled = true;
+            button.innerHTML = `<div class="loading-spinner"></div>${loadingText}`;
+            appState.isProcessing = true;
+        } else {
+            button.disabled = false;
+            button.innerHTML = `<span class="button-text">${button.dataset.originalText}</span>`;
+            appState.isProcessing = false;
+        }
+    },
+
+    showSuccess(message) {
+        if (elements.successMessage) {
+            elements.successMessage.textContent = message;
+            elements.successMessage.classList.add('show');
+        }
+    },
+
+    hideSuccess() {
+        if (elements.successMessage) {
+            elements.successMessage.classList.remove('show');
+        }
+    }
+};
+
+// Tab Management
+const tabManager = {
+    init() {
+        // Set initial state
+        this.switchTab('login');
+        
+        // Add event listeners
+        elements.loginTab?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.switchTab('login');
+        });
+
+        elements.signupTab?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.switchTab('signup');
+        });
+    },
+
+    switchTab(tab) {
+        console.log('Switching to tab:', tab);
+        
+        if (appState.isProcessing) {
+            console.log('Cannot switch tabs while processing');
+            return;
+        }
+        
+        // Clear all form errors
+        utils.clearAllErrors();
+        utils.hideSuccess();
+        
+        // Update tab states
+        elements.loginTab?.classList.remove('active');
+        elements.signupTab?.classList.remove('active');
+        elements.loginForm?.classList.add('hidden');
+        elements.signupForm?.classList.add('hidden');
+        
+        if (tab === 'login') {
+            elements.loginTab?.classList.add('active');
+            elements.loginForm?.classList.remove('hidden');
+        } else if (tab === 'signup') {
+            elements.signupTab?.classList.add('active');
+            elements.signupForm?.classList.remove('hidden');
+        }
+        
+        appState.currentTab = tab;
+    }
+};
+
+// Form Validation
+const validator = {
+    validateLoginForm(formData) {
+        const errors = {};
+        
+        if (!formData.email) {
+            errors.loginEmail = 'Email is required';
+        } else if (!utils.validateEmail(formData.email)) {
+            errors.loginEmail = 'Please enter a valid email';
+        }
+        
+        if (!formData.password) {
+            errors.loginPassword = 'Password is required';
+        }
+        
+        return {
+            isValid: Object.keys(errors).length === 0,
+            errors
+        };
+    },
+
+    validateSignupForm(formData) {
+        const errors = {};
+        
+        if (!formData.name?.trim()) {
+            errors.signupName = 'Name is required';
+        } else if (formData.name.trim().length < 2) {
+            errors.signupName = 'Name must be at least 2 characters';
+        }
+        
+        if (!formData.email) {
+            errors.signupEmail = 'Email is required';
+        } else if (!utils.validateEmail(formData.email)) {
+            errors.signupEmail = 'Please enter a valid email';
+        }
+        
+        if (!formData.password) {
+            errors.signupPassword = 'Password is required';
+        } else if (formData.password.length < 6) {
+            errors.signupPassword = 'Password must be at least 6 characters';
+        }
+        
+        return {
+            isValid: Object.keys(errors).length === 0,
+            errors
+        };
+    },
+
+    displayErrors(errors) {
+        Object.entries(errors).forEach(([field, message]) => {
+            const errorField = field.replace('signup', '').replace('login', '').toLowerCase();
+            utils.showError(field, field, message);
+        });
+    }
+};
+
+// Database Operations
+const dbOperations = {
+    async createUserProfile(uid, userData) {
+        try {
+            const userRef = ref(database, `users/${uid}`);
+            const initialData = {
+                profile: {
+                    name: userData.name,
+                    email: userData.email,
+                    joinDate: new Date().toISOString(),
+                    uid: uid
+                },
+                wallet: {
+                    btcBalance: 0,
+                    usdValue: 0,
+                    totalValue: 0
+                },
+                transactions: {},
+                marketData: {
+                    btcPrice: 0,
+                    ethPrice: 0,
+                    lastUpdated: new Date().toISOString()
+                }
+            };
+            
+            await set(userRef, initialData);
+            console.log('User profile created for UID:', uid);
+            return true;
+        } catch (error) {
+            console.error('Error creating user profile:', error);
+            throw error;
+        }
+    },
+
+    async getUserProfile(uid) {
+        try {
+            const userRef = ref(database, `users/${uid}`);
+            const snapshot = await get(userRef);
+            return snapshot.exists() ? snapshot.val() : null;
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            throw error;
+        }
+    }
+};
+
+// Authentication Handlers
+const authHandlers = {
+    async handleLogin(formData) {
+        try {
+            utils.showLoading(elements.loginButton, true, 'Signing in...');
+            
+            const userCredential = await signInWithEmailAndPassword(
+                auth, 
+                formData.email, 
+                formData.password
+            );
+            
+            console.log('User logged in:', userCredential.user.uid);
+            
+            // Small delay to show success state
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Redirect to dashboard
+            window.location.href = 'dashboard.html';
+            
+        } catch (error) {
+            utils.showLoading(elements.loginButton, false);
+            console.error('Login error:', error);
+            
+            this.handleLoginError(error);
+        }
+    },
+
+    async handleSignup(formData) {
+        try {
+            utils.showLoading(elements.signupButton, true, 'Creating account...');
+            
+            const userCredential = await createUserWithEmailAndPassword(
+                auth, 
+                formData.email, 
+                formData.password
+            );
+            
+            const user = userCredential.user;
+            
+            // Create user profile in database
+            await dbOperations.createUserProfile(user.uid, {
+                name: formData.name.trim(),
+                email: formData.email
+            });
+            
+            console.log('User account created:', user.uid);
+            
+            utils.showLoading(elements.signupButton, false);
+            
+            // Show success message and switch to login
+            utils.showSuccess('Account created successfully! You can now log in.');
+            tabManager.switchTab('login');
+            
+            // Clear signup form
+            elements.signupFormElement?.reset();
+            
+        } catch (error) {
+            utils.showLoading(elements.signupButton, false);
+            console.error('Signup error:', error);
+            
+            this.handleSignupError(error);
+        }
+    },
+
+    handleLoginError(error) {
+        let errorField = 'loginPassword';
+        let errorMessage = 'Login failed. Please try again.';
+        
+        switch (error.code) {
+            case 'auth/user-not-found':
+                errorField = 'loginEmail';
+                errorMessage = 'No account found with this email';
+                break;
+            case 'auth/wrong-password':
+                errorField = 'loginPassword';
+                errorMessage = 'Incorrect password';
+                break;
+            case 'auth/invalid-email':
+                errorField = 'loginEmail';
+                errorMessage = 'Invalid email address';
+                break;
+            case 'auth/invalid-credential':
+                errorField = 'loginPassword';
+                errorMessage = 'Invalid email or password';
+                break;
+            case 'auth/too-many-requests':
+                errorField = 'loginPassword';
+                errorMessage = 'Too many failed attempts. Try again later.';
+                break;
+            case 'auth/network-request-failed':
+                errorField = 'loginPassword';
+                errorMessage = 'Network error. Please check your connection.';
+                break;
+        }
+        
+        utils.showError(errorField, errorField, errorMessage);
+    },
+
+    handleSignupError(error) {
+        let errorField = 'signupPassword';
+        let errorMessage = 'Account creation failed. Please try again.';
+        
+        switch (error.code) {
+            case 'auth/email-already-in-use':
+                errorField = 'signupEmail';
+                errorMessage = 'An account with this email already exists';
+                break;
+            case 'auth/invalid-email':
+                errorField = 'signupEmail';
+                errorMessage = 'Invalid email address';
+                break;
+            case 'auth/weak-password':
+                errorField = 'signupPassword';
+                errorMessage = 'Password is too weak. Use at least 6 characters.';
+                break;
+            case 'auth/network-request-failed':
+                errorField = 'signupPassword';
+                errorMessage = 'Network error. Please check your connection.';
+                break;
+        }
+        
+        utils.showError(errorField, errorField, errorMessage);
+    }
+};
+
+// Form Event Handlers
+const formHandlers = {
+    setupLoginForm() {
+        elements.loginFormElement?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (appState.isProcessing) return;
+            
+            const formData = {
+                email: elements.inputs.loginEmail?.value || '',
+                password: elements.inputs.loginPassword?.value || ''
+            };
+            
+            // Clear previous errors
+            utils.clearError('loginEmail', 'loginEmail');
+            utils.clearError('loginPassword', 'loginPassword');
+            
+            // Validate form
+            const validation = validator.validateLoginForm(formData);
+            if (!validation.isValid) {
+                validator.displayErrors(validation.errors);
+                return;
+            }
+            
+            // Attempt login
+            await authHandlers.handleLogin(formData);
+        });
+    },
+
+    setupSignupForm() {
+        elements.signupFormElement?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (appState.isProcessing) return;
+            
+            const formData = {
+                name: elements.inputs.signupName?.value || '',
+                email: elements.inputs.signupEmail?.value || '',
+                password: elements.inputs.signupPassword?.value || ''
+            };
+            
+            // Clear previous errors
+            utils.clearError('signupName', 'signupName');
+            utils.clearError('signupEmail', 'signupEmail');
+            utils.clearError('signupPassword', 'signupPassword');
+            
+            // Validate form
+            const validation = validator.validateSignupForm(formData);
+            if (!validation.isValid) {
+                validator.displayErrors(validation.errors);
+                return;
+            }
+            
+            // Attempt signup
+            await authHandlers.handleSignup(formData);
+        });
+    },
+
+    setupInputValidation() {
+        // Real-time validation for better UX
+        Object.entries(elements.inputs).forEach(([inputId, input]) => {
+            input?.addEventListener('input', () => {
+                utils.clearError(inputId, inputId);
+            });
+        });
+    }
+};
+
+// Auth State Management
+const authStateManager = {
+    init() {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('User already logged in, redirecting...');
+                // Small delay to prevent jarring redirect
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 100);
+            }
+        });
+    }
+};
+
+// Application Initialization
+const app_init = {
+    async init() {
+        try {
+            console.log('Initializing CryptoDash Login...');
+            
+            // Check if all required elements exist
+            this.validateDOMElements();
+            
+            // Initialize components
+            tabManager.init();
+            authStateManager.init();
+            formHandlers.setupLoginForm();
+            formHandlers.setupSignupForm();
+            formHandlers.setupInputValidation();
+            
+            console.log('CryptoDash Login initialized successfully');
+            
+        } catch (error) {
+            console.error('Failed to initialize application:', error);
+        }
+    },
+
+    validateDOMElements() {
+        const requiredElements = [
+            'loginTab', 'signupTab', 'loginForm', 'signupForm',
+            'loginFormElement', 'signupFormElement', 'loginButton', 'signupButton'
+        ];
+        
+        const missingElements = requiredElements.filter(id => !elements[id]);
+        
+        if (missingElements.length > 0) {
+            console.warn('Missing DOM elements:', missingElements);
+        }
+        
+        const missingInputs = Object.entries(elements.inputs)
+            .filter(([key, element]) => !element)
+            .map(([key]) => key);
+            
+        if (missingInputs.length > 0) {
+            console.warn('Missing input elements:', missingInputs);
+        }
+    }
+};
+
+// Initialize when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => app_init.init());
+} else {
+    app_init.init();
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Funds</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #fefbf6;
+            color: #171717;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #000;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .auth-status {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .auth-authenticated {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .auth-guest {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .level-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .level-button:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .balance-display {
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .balance-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ea580c;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .withdraw-section {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2rem;
+            font-size: 1.1rem;
+            border: 2px solid #e5e5e5;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            border-color: #ea580c;
+        }
+
+        .withdrawal-limits {
+            background: #fff7ed;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #ea580c;
+        }
+
+        .limits-title {
+            font-weight: 600;
+            color: #ea580c;
+            margin-bottom: 0.5rem;
+        }
+
+        .limits-list {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #e5e5e5;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-insufficient {
+            background: #fecaca;
+            color: #dc2626;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .btn-insufficient:hover {
+            background: #fecaca;
+            transform: none;
+        }
+
+        .btn-loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            color: white;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .transactions {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .transactions-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+            background: #fafafa;
+        }
+
+        .transactions-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .transaction-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-type {
+            font-weight: 500;
+            color: #000;
+        }
+
+        .transaction-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .transaction-status {
+            color: #666;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .transaction-amount.negative {
+            color: #dc2626;
+        }
+
+        .status-pending {
+            color: #ea580c !important;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.7);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .confirmation-details {
+            background: #fefbf6;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #000;
+        }
+
+        .amount-highlight {
+            color: #ea580c;
+            font-size: 1.1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #000;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .btn-cancel:hover {
+            background: #e5e5e5;
+        }
+
+        .btn-confirm {
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            flex: 2;
+        }
+
+        .btn-confirm:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .btn-confirm:disabled {
+            background: #e5e5e5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .auth-status, .level-button {
+                position: relative;
+                margin: 0.5rem;
+            }
+
+            .balance-amount {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="level-button" onclick="window.history.back()">← Back</button>
+            
+            <h1>Withdraw Funds</h1>
+            <p>Withdraw your earnings securely</p>
+
+            <div id="authStatus" class="auth-status auth-guest">
+                Connecting...
+            </div>
+        </div>
+
+        <!-- Balance Display -->
+        <div class="balance-display">
+            <div class="balance-label">Available Balance</div>
+            <div id="balanceAmount" class="balance-amount">$0.00</div>
+        </div>
+
+        <!-- Withdraw Form -->
+        <div class="withdraw-section">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: #000;">
+                Withdrawal Details
+            </h3>
+
+            <div id="alertContainer"></div>
+
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label class="form-label" for="withdrawAmount">Amount to Withdraw</label>
+                    <div class="input-container">
+                        <span class="currency-symbol">$</span>
+                        <input 
+                            type="number" 
+                            id="withdrawAmount" 
+                            class="form-input"
+                            placeholder="Enter amount"
+                            min="1000"
+                            max="50000"
+                            step="0.01"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="btcAddress">BTC Wallet Address</label>
+                    <input 
+                        type="text" 
+                        id="btcAddress" 
+                        class="form-input"
+                        placeholder="Enter your Bitcoin wallet address (e.g., 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa)"
+                        style="padding-left: 1rem;"
+                        required
+                    >
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">
+                        ⚠️ Please double-check your address. Incorrect addresses may result in permanent loss of funds.
+                    </div>
+                </div>
+
+                <div class="withdrawal-limits">
+                    <div class="limits-title">Withdrawal Limits</div>
+                    <div class="limits-list">
+                        • Minimum withdrawal: $1,000<br>
+                        • Maximum withdrawal: $50,000<br>
+                        • Processing time: 1-3 business days
+                    </div>
+                </div>
+
+                <button type="submit" id="withdrawBtn" class="btn">
+                    Process Withdrawal
+                </button>
+                <div id="insufficientBalanceMsg" style="display: none; color: #dc2626; font-size: 0.9rem; text-align: center; margin-top: 0.5rem; font-weight: 500;">
+                    Minimum balance of $1,000 required to withdraw
+                </div>
+            </form>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="transactions">
+            <div class="transactions-header">
+                <h3>Recent Transactions</h3>
+            </div>
+            <div id="transactionList" class="transaction-list">
+                <div class="empty-state">
+                    Loading transactions...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Confirm Withdrawal</div>
+                <div class="modal-subtitle">Please review your withdrawal details</div>
+            </div>
+            
+            <div class="confirmation-details">
+                <div class="detail-row">
+                    <span class="detail-label">Withdrawal Amount:</span>
+                    <span id="confirmAmount" class="detail-value amount-highlight">$0.00</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">BTC Wallet Address:</span>
+                    <span id="confirmBtcAddress" class="detail-value" style="font-size: 0.8rem; word-break: break-all;">N/A</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Current Balance:</span>
+                    <span id="confirmCurrentBalance" class="detail-value">$0.00</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Remaining Balance:</span>
+                    <span id="confirmRemainingBalance" class="detail-value">$0.00</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Processing Time:</span>
+                    <span class="detail-value">1-3 Business Days</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value status-pending">Pending</span>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" id="cancelBtn" class="btn-cancel">Cancel</button>
+                <button type="button" id="confirmBtn" class="btn-confirm">Confirm Withdrawal</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, get, update, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import firebaseConfig from './firebaseConfig.js';
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUser = null;
+        let userBalance = 0;
+
+        // DOM elements
+        const authStatus = document.getElementById('authStatus');
+        const balanceAmount = document.getElementById('balanceAmount');
+        const withdrawForm = document.getElementById('withdrawForm');
+        const withdrawAmount = document.getElementById('withdrawAmount');
+        const btcAddress = document.getElementById('btcAddress');
+        const withdrawBtn = document.getElementById('withdrawBtn');
+        const alertContainer = document.getElementById('alertContainer');
+        const transactionList = document.getElementById('transactionList');
+        
+        // Modal elements
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmAmount = document.getElementById('confirmAmount');
+        const confirmBtcAddress = document.getElementById('confirmBtcAddress');
+        const confirmCurrentBalance = document.getElementById('confirmCurrentBalance');
+        const confirmRemainingBalance = document.getElementById('confirmRemainingBalance');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const insufficientBalanceMsg = document.getElementById('insufficientBalanceMsg');
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Update withdraw button state based on balance
+        function updateWithdrawButtonState() {
+            if (userBalance < 1000) {
+                withdrawBtn.disabled = true;
+                withdrawBtn.classList.remove('btn');
+                withdrawBtn.classList.add('btn-insufficient');
+                withdrawBtn.textContent = 'Insufficient Balance';
+                insufficientBalanceMsg.style.display = 'block';
+            } else {
+                withdrawBtn.disabled = false;
+                withdrawBtn.classList.remove('btn-insufficient');
+                withdrawBtn.classList.add('btn');
+                withdrawBtn.textContent = 'Process Withdrawal';
+                insufficientBalanceMsg.style.display = 'none';
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'error') {
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Load user balance
+        function loadUserBalance(uid) {
+            const userRef = ref(database, `users/${uid}`);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Handle legacy data conversion
+                    const legacyBalance = data.wallet?.btcBalance || data.wallet?.usdValue || data.wallet?.totalValue || 0;
+                    userBalance = data.wallet?.usdBalance || legacyBalance || 0;
+                    balanceAmount.textContent = formatCurrency(userBalance);
+                    updateWithdrawButtonState(); // Update button state when balance changes
+                } else {
+                    userBalance = 0;
+                    balanceAmount.textContent = formatCurrency(0);
+                    updateWithdrawButtonState(); // Update button state when balance changes
+                }
+            });
+        }
+
+        // Load user transactions
+        function loadUserTransactions(uid) {
+            const transactionsRef = ref(database, `users/${uid}/transactions`);
+            onValue(transactionsRef, (snapshot) => {
+                const transactions = snapshot.val();
+                if (!transactions) {
+                    transactionList.innerHTML = '<div class="empty-state">No transactions found</div>';
+                    return;
+                }
+
+                const transactionArray = Object.entries(transactions)
+                    .map(([key, transaction]) => ({ id: key, ...transaction }))
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 10); // Show last 10 transactions
+
+                if (transactionArray.length === 0) {
+                    transactionList.innerHTML = '<div class="empty-state">No transactions found</div>';
+                    return;
+                }
+
+                transactionList.innerHTML = transactionArray.map(transaction => {
+                    const date = new Date(transaction.timestamp).toLocaleDateString();
+                    const time = new Date(transaction.timestamp).toLocaleTimeString();
+                    const isWithdrawal = transaction.type === 'withdrawal';
+                    
+                    return `
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-type">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
+                                <div class="transaction-date">${date} at ${time}</div>
+                                ${transaction.btcAddress ? `<div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">BTC: ${transaction.btcAddress.substring(0, 10)}...${transaction.btcAddress.substring(transaction.btcAddress.length - 6)}</div>` : ''}
+                                <div class="transaction-status status-${transaction.status}">${transaction.status}</div>
+                            </div>
+                            <div class="transaction-amount ${isWithdrawal ? 'negative' : 'positive'}">
+                                ${isWithdrawal ? '-' : '+'}${formatCurrency(transaction.amount)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // Show confirmation modal
+        function showConfirmationModal(amount, address) {
+            const numAmount = parseFloat(amount);
+            const remainingBalance = userBalance - numAmount;
+            
+            confirmAmount.textContent = formatCurrency(numAmount);
+            confirmBtcAddress.textContent = address;
+            confirmCurrentBalance.textContent = formatCurrency(userBalance);
+            confirmRemainingBalance.textContent = formatCurrency(remainingBalance);
+            
+            confirmationModal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        // Hide confirmation modal
+        function hideConfirmationModal() {
+            confirmationModal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Validate withdrawal amount and BTC address
+        function validateWithdrawal(amount, address) {
+            const numAmount = parseFloat(amount);
+            
+            // Validate amount
+            if (isNaN(numAmount) || numAmount <= 0) {
+                return 'Please enter a valid amount';
+            }
+            
+            if (numAmount < 1000) {
+                return 'Minimum withdrawal amount is $1,000';
+            }
+            
+            if (numAmount > 50000) {
+                return 'Maximum withdrawal amount is $50,000';
+            }
+            
+            if (numAmount > userBalance) {
+                return 'Insufficient balance';
+            }
+
+            // Validate BTC address
+            if (!address || address.trim().length === 0) {
+                return 'Please enter your BTC wallet address';
+            }
+
+            // Basic BTC address validation (simplified)
+            const btcAddressRegex = /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^bc1[a-z0-9]{39,59}$/;
+            if (!btcAddressRegex.test(address.trim())) {
+                return 'Please enter a valid BTC wallet address';
+            }
+            
+            return null;
+        }
+
+        // Process withdrawal (updated to work with modal)
+        async function processWithdrawal(amount, address) {
+            if (!currentUser) {
+                showAlert('Please sign in to continue');
+                return;
+            }
+
+            confirmBtn.disabled = true;
+            confirmBtn.classList.add('btn-loading');
+            confirmBtn.textContent = '';
+
+            try {
+                const numAmount = parseFloat(amount);
+                const newBalance = userBalance - numAmount;
+                const timestamp = Date.now();
+                
+                // Create transaction record
+                const transactionId = `withdrawal_${timestamp}`;
+                const updates = {};
+                
+                // Update user balance and add transaction
+                updates[`users/${currentUser.uid}/wallet/usdBalance`] = newBalance;
+                
+                // Add transaction record under user's transactions with BTC address
+                updates[`users/${currentUser.uid}/transactions/${transactionId}`] = {
+                    type: 'withdrawal',
+                    amount: numAmount,
+                    btcAddress: address.trim(),
+                    status: 'pending',
+                    timestamp: timestamp,
+                    description: 'Withdrawal request to BTC address'
+                };
+
+                await update(ref(database), updates);
+
+                hideConfirmationModal();
+                showAlert(`Withdrawal of ${formatCurrency(numAmount)} to BTC address submitted successfully! Status: Pending`, 'success');
+                withdrawAmount.value = '';
+                btcAddress.value = '';
+
+            } catch (error) {
+                console.error('Withdrawal error:', error);
+                showAlert('Failed to process withdrawal. Please try again.');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.classList.remove('btn-loading');
+                confirmBtn.textContent = 'Confirm Withdrawal';
+            }
+        }
+
+        // Handle form submission (updated to show modal)
+        withdrawForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Prevent form submission if insufficient balance
+            if (userBalance < 1000) {
+                showAlert('Minimum balance of $1,000 required to withdraw');
+                return;
+            }
+
+            const amount = withdrawAmount.value.trim();
+            const address = btcAddress.value.trim();
+            
+            if (amount && address) {
+                const validationError = validateWithdrawal(amount, address);
+                if (validationError) {
+                    showAlert(validationError);
+                    return;
+                }
+                showConfirmationModal(amount, address);
+            }
+        });
+
+        // Modal event listeners
+        cancelBtn.addEventListener('click', hideConfirmationModal);
+        
+        confirmBtn.addEventListener('click', () => {
+            const amount = withdrawAmount.value.trim();
+            const address = btcAddress.value.trim();
+            if (amount && address) {
+                processWithdrawal(amount, address);
+            }
+        });
+
+        // Close modal when clicking outside
+        confirmationModal.addEventListener('click', (e) => {
+            if (e.target === confirmationModal) {
+                hideConfirmationModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && confirmationModal.classList.contains('active')) {
+                hideConfirmationModal();
+            }
+        });
+
+        // Clear alerts when user starts typing
+        withdrawAmount.addEventListener('input', () => {
+            alertContainer.innerHTML = '';
+        });
+
+        btcAddress.addEventListener('input', () => {
+            alertContainer.innerHTML = '';
+        });
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                authStatus.textContent = 'Authenticated';
+                authStatus.className = 'auth-status auth-authenticated';
+                
+                // Load user data
+                loadUserBalance(user.uid);
+                loadUserTransactions(user.uid);
+            } else {
+                currentUser = null;
+                authStatus.textContent = 'Please Sign In';
+                authStatus.className = 'auth-status auth-guest';
+                balanceAmount.textContent = '$0.00';
+                userBalance = 0;
+                updateWithdrawButtonState(); // Update button state when signed out
+                transactionList.innerHTML = '<div class="empty-state">Please sign in to view transactions</div>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vechain Mining - Upgrade</title>
+  <style>
+ 
+    body {
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ff8c00;
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+    .upgrade-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      position: relative;
+    }
+    .card {
+      background: linear-gradient(145deg, #1e293b 0%, #334155 50%, #475569 100%);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease;
+      color: white;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+    }
+    .card img {
+      width: 70px;
+      display: block;
+      margin: 0 auto 10px auto;
+    }
+    .card h2 {
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 15px;
+      color: #ffa500;
+    }
+    .info {
+      margin: 10px 0;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .price {
+      font-weight: bold;
+      color: #00ff9d;
+    }
+    .buy-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding:6px 12px;
+      margin-top: 15px;
+      background: linear-gradient(135deg, #ff8c00, #ff4500);
+      border: none;
+      border-radius:6px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .buy-btn:hover {
+      background: linear-gradient(135deg, #ffb347, #ff6347);
+    }
+    .info span{
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .transaction{
+      position: absolute;
+      height:100%;
+      width: 100%;
+      background:#0B0B0B;
+      display: block;
+      border-radius: 5px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .card1{
+      background: #1A1A1A;
+      color: white;
+      font-weight: bolder;
+      height: 50px;
+      width: 80%;
+      display: block;
+      margin: 0 auto;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 12px;
+      align-items: center;
+      box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.3);
+    }
+    .card2{
+      background: #1A1A1A;
+      height: auto;
+      width: 80%;
+      display: block;
+      margin: 0 auto;
+      border-radius: 12px;
+      padding: 10px 12px;
+      align-items: center;
+      box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.3);
+    }
+    .label{
+      display: block;
+      margin: 0 auto;
+      margin: 15px;
+      display: flex;
+      justify-content:center;
+    }
+    select{
+      width: 70%;
+      height:40px;
+      border: none;
+      border-radius: 5px;
+      background:#1A1A1A;
+      border: 1px solid white;
+      color: white;
+      padding: 2px 5px;
+    }
+
+    option{
+      background: white;
+      padding: 20px;
+      color: black;
+
+    }
+    option:hover{
+      background: #ccc;
+    }
+    .walletAdress{
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+    }
+    .walletAdress span{
+      color:black;
+      font-weight: 100;
+      font-size: large;
+      background: white;
+      padding: 5px 20px;
+      border-radius: 5px;
+      box-shadow:inset 1px 1px 12px black;
+    }
+    #copyBtn{
+      background: blue;
+      color: white;
+      padding:11px 20px;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .copyBtn{
+      display: block;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+
+    }
+    #walletAdress{
+        background: white;
+        padding: 2px 5px;
+        height: 29px;
+        width: 90%;
+        border:none;
+        border-radius: 8px;
+    }
+    #ConfirmPaymennt{
+      display: block;
+      margin: 0 auto;
+      background:#26914A;
+      padding: 12px 20px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    #address{
+        padding: 5px 2px;
+        border-radius: 5px;
+    }
+    input{
+      text-align: center;
+      font-size: 1rem;
+      letter-spacing: 3px;
+      font-family: monospace;
+    }
+
+    .pendingPayment{
+       background: #1A1A1A;
+       height: 100px;
+       margin: 20px;
+       border-radius: 12px;
+       margin-top: 10%;
+       display: none;
+    }
+    .pend{
+      background: #5b99ea;
+      height: 50px;
+      border-top-left-radius: 0px;
+      border-top-right-radius: 0px;
+      border-bottom-left-radius: inherit;
+      border-bottom-right-radius: inherit;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      }
+    .pend span{
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: bold;
+    }
+    @media(max-width:700px){
+        #address{
+            font-size: 0.8rem;
+            font-weight: 100;
+            
+
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="upgrade-container">
+    <div class="transaction" style="display:none;">
+      <h3 style="text-align: center; color:white">Complet your deposit</h3>
+      <div class="card1">
+        <span>Amount</span>
+        <select name="amount" id="amount">
+          <option name="selectTier" id="selectTier">
+            Select Amount
+          </option>
+          <option value="level_1">
+            Level (1) - $500
+          </option>
+
+            <option value="level_1">
+            Level (2) - $500
+          </option>
+
+            <option value="level_1">
+            Level (3) - $500
+          </option>
+
+            <option value="level_1">
+            Level (4) - $500
+          </option>
+            <option value="level_1">
+            Level (5) - $500
+          </option>
+
+            <option value="level_1">
+            Level (6) - $500
+          </option>
+
+            <option value="level_1">
+            Level (7) - $500
+          </option>
+        </select>
+      </div>
+      
+      <div class="label">
+        <label for="wallet" style="text-align: center;">To:</label>
+      </div>
+      <div class="card2">
+        <br>
+        <div class="walletAdress">
+          <input type="text" name="adress" id="walletAdress" value="bc1qw0lzfahwalrupsneygqt7a630825cr2kh9zzv5" disabled>
+        </div>
+        <br>
+        <div class="copyBtn">
+          <button id="copyBtn">
+            Copy Address
+          </button>
+        </div>
+      </div>
+      <br>
+
+       <button id="ConfirmPaymennt">
+          I have made the payment
+        </button>
+
+        <div class="pendingPayment">
+          <br>
+          <h2 style="text-align: center; color:white; font-family:monospace; font-weight:bold; font-size:1rem;">
+            pending...
+          </h2>
+
+          <div class="pend">
+            <span id="pendingMessage">
+              Deposit recieved, your balance will be updated within 24hr 🕒 
+            </span>
+          </div>
+        </div>
+    </div>
+    <!-- Tool 9 -->
+    <div class="card">
+      <img src="bitcoin.jpg" alt="Tool" style="border-radius: 100%;">
+      <h2>
+        level - 1</h2>
+      <div class="info"><span>Daily Output:</span><span>$20</span></div>
+      <!-- <div class="info"><span>Valid Days:</span><span>50 Days</span></div> -->
+      <div class="info"><span>Price:</span><span class="price">$500</span></div>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+
+    <!-- Tool 10 -->
+    <div class="card">
+      <img src="bitcoin.jpg" alt="Tool" style="border-radius: 100%;">
+      <h2>Level - 2</h2>
+      <div class="info"><span>Daily Output:</span><span>$36</span></div>
+      <!-- <div class="info"><span>Valid Days:</span><span>60 Days</span></div> -->
+      <div class="info"><span>Price:</span><span class="price">$900</span></div>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+
+     <div class="card">
+      <img src="bitcoin.jpg" alt="Tool" style="border-radius: 100%;">
+      <h2>Level - 3</h2>
+      <div class="info"><span>Daily Output:</span><span>$60</span></div>
+      <!-- <div class="info"><span>Valid Days:</span><span>60 Days</span></div> -->
+      <div class="info"><span>Price:</span><span class="price">$1,500</span></div>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+  
+     <div class="card">
+      <img src="bitcoin.jpg" alt="Tool" style="border-radius: 100%;">
+      <h2>Level - 4</h2>
+      <div class="info"><span>Daily Output:</span><span>$180</span></div>
+      <!-- <div class="info"><span>Valid Days:</span><span>60 Days</span></div> -->
+      <div class="info"><span>Price:</span><span class="price">$4,500</span></div>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+
+      <div class="card">
+      <img src="bitcoin.jpg" alt="Tool" style="border-radius: 100%;">
+      <h2>Level - 5</h2>
+      <div class="info"><span>Daily Output:</span><span>$400</span></div>
+      <!-- <div class="info"><span>Valid Days:</span><span>60 Days</span></div> -->
+      <div class="info"><span>Price:</span><span class="price">$10,000</span></div>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+
+     <div class="card">
+      <img src="bitcoin.jpg" alt="Tool" style="border-radius: 100%;">
+      <h2>Level - 6</h2>
+      <div class="info"><span>Daily Output:</span><span>$800</span></div>
+      <!-- <div class="info"><span>Valid Days:</span><span>60 Days</span></div> -->
+      <div class="info"><span>Price:</span><span class="price">$20,000</span></div>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+
+    <div class="card">
+      <img src="bitcoin.jpg" alt="Tool" style="border-radius: 100%;">
+      <h2>Level - 7</h2>
+      <div class="info"><span>Daily Output:</span><span>$1,000</span></div>
+      <!-- <div class="info"><span>Valid Days:</span><span>60 Days</span></div> -->
+      <div class="info"><span>Price:</span><span class="price">$25,000</span></div>
+      <button class="buy-btn">Buy Now</button>
+    </div>
+  </div> 
+  <script>
+    const transaction = document.querySelector('.transaction');
+    const copyBtn = document.getElementById('copyBtn');
+    const buyBtn = document.querySelector(".buy-btn");
+    const pendingPayment = document.querySelector(".pendingPayment");
+    const ConfirmPaymennt = document.getElementById("ConfirmPaymennt");
+    const input = document.getElementById('walletAdress'); // for input
+ function hidePendingDiv(){
+  pendingPayment.style.display = 'none';
+ }
+ function showPendingDiv(){
+  pendingPayment.style.display = 'block';
+ }
+    buyBtn.addEventListener('click', ()=>{
+        transaction.style.display = 'block';
+        
+    })
+
+    copyBtn.addEventListener('click', ()=>{
+      const text = input.value;
+      if(navigator.clipboard && window.isSecureContext){
+        //modern method
+        navigator.clipboard.writeText(text)
+        .then(()=>{
+          console.log('copied' + text)
+        })
+        .catch(err => alert('failed to copy:' + err));
+      }else{
+        //fall back for older browsers
+        input.select();
+        input.setSelectionRange(0, 99999); // mobile safe
+        document.execCommand('copy');
+        alert('copied: ' + text);
+      }
+      console.log('button clicked');
+    });
+    ConfirmPaymennt.addEventListener('click', ()=>{
+      showPendingDiv();
+      setTimeout(()=>{
+        hidePendingDiv();
+      },3000);
+      setTimeout(()=>{
+        transaction.style.display = 'none';
+      },3900)
+    })
+  </script>
+</body>
+</html>
